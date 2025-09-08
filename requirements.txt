@@ -4,4 +4,9 @@ openai
 requests
 python-dotenv
 
+sudo apt-get update
+sudo apt-get install -y ffmpeg
+
+
+
 
