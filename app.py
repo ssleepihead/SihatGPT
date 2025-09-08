@@ -11,6 +11,8 @@ from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from werkzeug.utils import secure_filename
 
+import imageio_ffmpeg as ffmpeg
+
 # === Load API Keys ===
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -37,8 +39,6 @@ processing_cancelled = {}  # Track cancelled processes
 search_cache = {}  # Cache Google search results to avoid duplicate API calls
 
 # === Processing Functions ===
-
-
 def convert_video_to_transcript(video_path, filename):
     processing_progress[filename] = 10
     print("Converting video to audio...")
@@ -46,49 +46,47 @@ def convert_video_to_transcript(video_path, filename):
     base_name = os.path.splitext(os.path.basename(video_path))[0]
     audio_path = os.path.join(AUDIO_FOLDER, base_name + "_audio.mp3")
 
-    # Use system-installed ffmpeg (Linux/Render compatible)
+    # Get the FFmpeg executable bundled with imageio-ffmpeg
+    ffmpeg_path = ffmpeg.get_ffmpeg_exe()
+
+    # FFmpeg command
     ffmpeg_cmd = [
-        "ffmpeg",  # just "ffmpeg", assume it's installed in PATH
+        ffmpeg_path,
         "-i", video_path,
-        "-vn",           # no video
+        "-vn",               # no video
         "-acodec", "libmp3lame",
-        "-ab", "128k",   # bitrate
-        "-ar", "16000",  # sample rate
-        "-ac", "1",      # mono audio
-        "-y",            # overwrite if exists
-        audio_path
+        "-ab", "128k",       # bitrate
+        "-ar", "16000",      # sample rate
+        "-ac", "1",          # mono audio
+        "-y", audio_path
     ]
 
     try:
-        # Run ffmpeg command
         subprocess.run(ffmpeg_cmd, check=True, capture_output=True)
-        print(f"Audio extracted successfully: {audio_path}")
-    except FileNotFoundError:
-        print("ERROR: ffmpeg not found. Make sure ffmpeg is installed on the server.")
-        return "", ""
+        print(f"Audio extracted: {audio_path}")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Audio extraction failed.\n{e.stderr.decode()}")
+        print(f"ERROR: Audio extraction failed.\n{e}")
         return "", ""
 
     if not os.path.exists(audio_path):
-        print("ERROR: Audio file was not created.")
+        print("ERROR: Audio file not found.")
         return "", ""
 
     processing_progress[filename] = 20
     print("Transcribing audio...")
 
-    # Transcription via OpenAI Whisper API
-    try:
-        with open(audio_path, "rb") as audio_file:
+    # Whisper API call
+    with open(audio_path, "rb") as audio_file:
+        try:
             transcript_response = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file,
                 response_format="text"
             )
-            transcript_text = getattr(transcript_response, 'text', str(transcript_response))
-    except Exception as e:
-        print(f"ERROR: Whisper API failed: {e}")
-        return "", ""
+            transcript_text = transcript_response.text if hasattr(transcript_response, 'text') else str(transcript_response)
+        except Exception as e:
+            print(f"Whisper API failed: {e}")
+            return "", ""
 
     processing_progress[filename] = 30
     return transcript_text, audio_path
@@ -529,4 +527,5 @@ def output():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
