@@ -46,44 +46,49 @@ def convert_video_to_transcript(video_path, filename):
     base_name = os.path.splitext(os.path.basename(video_path))[0]
     audio_path = os.path.join(AUDIO_FOLDER, base_name + "_audio.mp3")
 
-    #FFmpeg command
+    # Use system-installed ffmpeg (Linux/Render compatible)
     ffmpeg_cmd = [
-        "C:/ffmpeg/ffmpeg.exe",
+        "ffmpeg",  # just "ffmpeg", assume it's installed in PATH
         "-i", video_path,
-        "-vn",  #no video
+        "-vn",           # no video
         "-acodec", "libmp3lame",
-        "-ab", "128k",  #bitrate
-        "-ar", "16000",  #sample rate
-        "-ac", "1",  #audio channel - 1 = mono audio for faster processing
-        "-y", audio_path
+        "-ab", "128k",   # bitrate
+        "-ar", "16000",  # sample rate
+        "-ac", "1",      # mono audio
+        "-y",            # overwrite if exists
+        audio_path
     ]
 
     try:
-        subprocess.run(ffmpeg_cmd, check=True, capture_output=True)  # Suppress output for speed
-        print(f"Audio extracted: {audio_path}")
-    except subprocess.CalledProcessError:
-        print("ERROR : Audio extraction failed.")
+        # Run ffmpeg command
+        subprocess.run(ffmpeg_cmd, check=True, capture_output=True)
+        print(f"Audio extracted successfully: {audio_path}")
+    except FileNotFoundError:
+        print("ERROR: ffmpeg not found. Make sure ffmpeg is installed on the server.")
+        return "", ""
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Audio extraction failed.\n{e.stderr.decode()}")
         return "", ""
 
     if not os.path.exists(audio_path):
-        print("ERROR : Audio file not found.")
+        print("ERROR: Audio file was not created.")
         return "", ""
 
     processing_progress[filename] = 20
     print("Transcribing audio...")
 
-    #whisper API call for transcription
-    with open(audio_path, "rb") as audio_file:
-        try:
+    # Transcription via OpenAI Whisper API
+    try:
+        with open(audio_path, "rb") as audio_file:
             transcript_response = client.audio.transcriptions.create(
-                model="whisper-1", 
+                model="whisper-1",
                 file=audio_file,
-                response_format="text"  #get direct text response
+                response_format="text"
             )
-            transcript_text = transcript_response.text if hasattr(transcript_response, 'text') else str(transcript_response)
-        except Exception as e:
-            print(f"Whisper API failed: {e}")
-            return "", ""
+            transcript_text = getattr(transcript_response, 'text', str(transcript_response))
+    except Exception as e:
+        print(f"ERROR: Whisper API failed: {e}")
+        return "", ""
 
     processing_progress[filename] = 30
     return transcript_text, audio_path
@@ -524,3 +529,4 @@ def output():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
