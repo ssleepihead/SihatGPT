@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Health Misinformation Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Fallback CDN for Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --border-color: #e5e7eb;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --card-bg: #ffffff;
+      --shadow: 0 1px 3px 0 #0000001a;
+      --shadow-lg: 0 10px 15px -3px #0000001a;
+      --success-color: #22c55e;
+      --error-color: #ef4444;
+      --warning-color: #f59e0b;
+      --sun-color: #FFA500;
+      --moon-color: #111;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0d1117; /* GitHub dark mode background */
+      --bg-secondary: #161b22; /* GitHub secondary background */
+      --text-primary: #c9d1d9; /* GitHub primary text color */
+      --text-secondary: #8b949e; /* GitHub secondary text color */
+      --border-color: #30363d; /* GitHub border color */
+      --accent-color: #58a6ff; /* GitHub accent color */
+      --accent-hover: #1f6feb; /* GitHub accent hover color */
+      --card-bg: #161b22; /* GitHub card background */
+      --shadow: 0 1px 3px 0 #0000004d;
+      --shadow-lg: 0 10px 15px -3px #0000004d;
+      --success-color: #238636; /* GitHub success green */
+      --error-color: #da3633; /* GitHub error red */
+      --warning-color: #d29922; /* GitHub warning yellow */
+      --sun-color: #FFA500;
+      --moon-color: #222;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+
+    /* Navigation Bar */
+    nav {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-color);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .nav-link.active {
+      background: var(--accent-color);
+      color: #ffffff;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle, .lang-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover, .lang-toggle:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .theme-toggle i.fas.fa-moon {
+      color: var(--moon-color) !important;
+    }
+    .theme-toggle i.fas.fa-sun {
+      color: var(--sun-color) !important;
+    }
+
+    /* Main Content */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .section {
+      display: block;
+    }
+
+    .main-content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 550px;
+      padding: 20px 0;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+      width: 100%;
+      max-width: 1200px;
+      align-items: center;
+    }
+
+    .description {
+      padding: 16px 0;
+    }
+
+    .description h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .description p {
+      color: var(--text-primary);
+      font-size: 1.0 rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+      font-weight: 400;
+      text-shadow: 0 1px 2px #33203008;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    /* Ensure Font Awesome icons are visible */
+    .features-grid .fas,
+    .features-grid .far,
+    .features-grid .fab {
+      font-weight: 900;
+      font-style: normal;
+      font-variant: normal;
+      text-rendering: auto;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .features-grid .feature-icon {
+      background: var(--accent-color) !important;
+      color: #ffffff !important;
+    }
+
+    .features-grid .feature-icon i {
+      color: #ffffff !important;
+      display: block;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-item {
+      background: var(--card-bg);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .feature-item:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-item div:last-child {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .feature-item strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: -0.2px;
+    }
+
+    .feature-item p {
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff !important;
+      font-size: 18px;
+      flex-shrink: 0;
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    .feature-icon i {
+      color: #ffffff !important;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      height: fit-content;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card h3 {
+      font-size: 1.3rem;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .drop_box {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 40px 24px;
+      background: var(--bg-secondary);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .drop_box:hover {
+      border-color: var(--accent-color);
+      background: #eaf1fd;
+    }
+
+    .drop_box h4 {
+      color: var(--text-primary);
+      font-size: 1.125rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .drop_box p {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 24px;
+    }
+
+    #chooseFileBtn {
+      background: var(--accent-color);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+    }
+
+    #chooseFileBtn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    #fileName {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    /* Video Preview Modal */
+    #videoPreviewModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: #00000033;
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .video-modal-overlay {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: #00000033;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .video-modal-content {
+      background: white;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      position: relative;
+      z-index: 1001;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      max-height: 100vh;
+      max-width: 100vw;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    [data-theme="dark"] .video-modal-content {
+      background: #1f2937;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      background: transparent;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    #videoPreview {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      outline: none;
+      border-radius: 8px;
+    }
+
+    .video-modal-header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 0 8px 0;
+      margin-bottom: 8px;
+    }
+
+
+
+    .video-modal-header h3 {
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .close-modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .close-modal:hover {
+      background: #ef4444;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    [data-theme="dark"] .close-modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .close-modal:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    .video-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      white-space: nowrap;
+      min-width: fit-content;
+      flex: 1;
+    }
+
+    .modal-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+    }
+
+    /* Processing Modal */
+    #processingModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    [data-theme="dark"] #processingModal {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-overlay {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.1);
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    [data-theme="dark"] .modal-overlay {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      z-index: 2001;
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: auto;
+      transform: scale(0.9);
+      opacity: 0;
+      animation: modalEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes modalEnter {
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-content.expanded {
+      max-width: 480px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Main Spinner Container */
+    .main-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px;
+      height: 40px;
+    }
+
+    /* Classic Circle Spinner */
+    .main-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 1. Ordinary Circle Spinner */
+    .spinner-circle {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(37, 99, 235, 0.2);
+      border-top: 2px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spinCircle 1s linear infinite;
+    }
+
+    @keyframes spinCircle {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 2. Circular Bar Spinner (Apple-Style) */
+    .spinner-dots-circle {
+      width: 24px;
+      height: 24px;
+      position: relative;
+    }
+
+    .spinner-dots-circle::before,
+    .spinner-dots-circle::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background: var(--accent-color);
+      border-radius: 1px;
+      animation: circularBars 1.2s ease-in-out infinite;
+    }
+
+    /* Top bar */
+    .spinner-dots-circle::before {
+      top: 1px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 0s;
+    }
+
+    /* Right bar */
+    .spinner-dots-circle::after {
+      top: 50%;
+      right: 1px;
+      transform: translateY(-50%) rotate(90deg);
+      animation-delay: 0.15s;
+    }
+
+    .dot-bottom,
+    .dot-left,
+    .dot-top-right,
+    .dot-bottom-right,
+    .dot-bottom-left,
+    .dot-top-left {
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background: var(--accent-color);
+      border-radius: 1px;
+      animation: circularBars 1.2s ease-in-out infinite;
+    }
+
+    /* Bottom bar */
+    .dot-bottom {
+      bottom: 1px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation-delay: 0.3s;
+    }
+
+    /* Left bar */
+    .dot-left {
+      top: 50%;
+      left: 1px;
+      transform: translateY(-50%) rotate(90deg);
+      animation-delay: 0.45s;
+    }
+
+    /* Top-right diagonal */
+    .dot-top-right {
+      top: 3px;
+      right: 3px;
+      transform: rotate(45deg);
+      animation-delay: 0.075s;
+    }
+
+    /* Bottom-right diagonal */
+    .dot-bottom-right {
+      bottom: 3px;
+      right: 3px;
+      transform: rotate(-45deg);
+      animation-delay: 0.225s;
+    }
+
+    /* Bottom-left diagonal */
+    .dot-bottom-left {
+      bottom: 3px;
+      left: 3px;
+      transform: rotate(45deg);
+      animation-delay: 0.375s;
+    }
+
+    /* Top-left diagonal */
+    .dot-top-left {
+      top: 3px;
+      left: 3px;
+      transform: rotate(-45deg);
+      animation-delay: 0.525s;
+    }
+
+    @keyframes circularBars {
+      0%, 80%, 100% { 
+        opacity: 0.2;
+      }
+      40% { 
+        opacity: 1;
+      }
+    }
+
+    /* 3. True Hourglass Shape */
+    .spinner-hourglass {
+      width: 18px;
+      height: 20px;
+      position: relative;
+      background: var(--accent-color);
+      clip-path: polygon(
+        20% 0%, 80% 0%, 
+        80% 35%, 50% 50%, 
+        80% 65%, 80% 100%, 
+        20% 100%, 20% 65%, 
+        50% 50%, 20% 35%
+      );
+      animation: hourglassFlip 2s ease-in-out infinite;
+    }
+
+    .spinner-hourglass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, 
+        var(--accent-color) 0%, 
+        var(--accent-color) 35%, 
+        transparent 50%, 
+        transparent 65%, 
+        rgba(37, 99, 235, 0.2) 100%);
+      clip-path: polygon(
+        20% 0%, 80% 0%, 
+        80% 35%, 50% 50%, 
+        80% 65%, 80% 100%, 
+        20% 100%, 20% 65%, 
+        50% 50%, 20% 35%
+      );
+      animation: sandDrain 2s ease-in-out infinite;
+    }
+
+    .spinner-hourglass::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 4px;
+      background: var(--accent-color);
+      transform: translateX(-50%) translateY(-50%);
+      border-radius: 50%;
+      animation: sandFall 2s ease-in-out infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes hourglassFlip {
+      0%, 90% { 
+        transform: rotate(0deg);
+      }
+      95%, 100% { 
+        transform: rotate(180deg);
+      }
+    }
+
+    @keyframes sandDrain {
+      0% { 
+        background: linear-gradient(to bottom, 
+          var(--accent-color) 0%, 
+          var(--accent-color) 35%, 
+          transparent 50%, 
+          transparent 65%, 
+          rgba(37, 99, 235, 0.2) 100%);
+      }
+      45% { 
+        background: linear-gradient(to bottom, 
+          rgba(37, 99, 235, 0.3) 0%, 
+          rgba(37, 99, 235, 0.3) 35%, 
+          transparent 50%, 
+          transparent 65%, 
+          var(--accent-color) 100%);
+      }
+      50% { 
+        background: linear-gradient(to bottom, 
+          rgba(37, 99, 235, 0.2) 0%, 
+          rgba(37, 99, 235, 0.2) 35%, 
+          transparent 50%, 
+          transparent 65%, 
+          var(--accent-color) 100%);
+      }
+      100% { 
+        background: linear-gradient(to bottom, 
+          var(--accent-color) 0%, 
+          var(--accent-color) 35%, 
+          transparent 50%, 
+          transparent 65%, 
+          rgba(37, 99, 235, 0.2) 100%);
+      }
+    }
+
+    @keyframes sandFall {
+      0%, 15% { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(-100%);
+      }
+      20%, 80% { 
+        opacity: 0.8;
+        transform: translateX(-50%) translateY(-50%);
+      }
+      85%, 100% { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(0%);
+      }
+    }
+
+    /* 4. Enhanced Jumping Dots */
+    .spinner-dots-line {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spinner-dots-line .dot {
+      width: 5px;
+      height: 5px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      animation: jumpDots 1.2s ease-in-out infinite;
+      box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+    }
+
+    .spinner-dots-line .dot:nth-child(1) { animation-delay: 0s; }
+    .spinner-dots-line .dot:nth-child(2) { animation-delay: 0.2s; }
+    .spinner-dots-line .dot:nth-child(3) { animation-delay: 0.4s; }
+    .spinner-dots-line .dot:nth-child(4) { animation-delay: 0.6s; }
+
+    @keyframes jumpDots {
+      0%, 80%, 100% { 
+        transform: scale(1) translateY(0); 
+        opacity: 0.6;
+        box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+      }
+      40% { 
+        transform: scale(1.2) translateY(-6px); 
+        opacity: 1;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+      }
+    }
+
+    /* Active Spinner Display */
+    .active-spinner {
+      width: 32px;
+      height: 32px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* When selection is made, hide selection and show active spinner */
+    .spinner-active .spinner-selection {
+      display: none;
+    }
+
+    /* Compact Progress Container */
+    #progressContainer {
+      margin: 12px 0;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      height: 4px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    #progressBar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-color), var(--accent-hover), var(--accent-color));
+      background-size: 200% 100%;
+      border-radius: 12px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: flowingGradient 2s ease-in-out infinite;
+      position: relative;
+    }
+
+    @keyframes flowingGradient {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* Pulsing glow effect */
+    #progressBar::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+      border-radius: 12px;
+      opacity: 0.3;
+      filter: blur(3px);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.02);
+      }
+    }
+
+    /* Compact Status Text */
+    .processing-status {
+      margin: 10px 0 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      min-height: 18px;
+      opacity: 0.85;
+    }
+
+    #progressPercent {
+      margin: 4px 0 12px;
+      font-weight: 600;
+      color: var(--accent-color);
+      font-size: 0.85rem;
+    }
+
+    /* Compact Timer */
+    .processing-timer {
+      background: transparent;
+      border: none;
+      padding: 4px 0;
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-family: 'Courier New', monospace;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .processing-timer i {
+      color: var(--accent-color);
+      font-size: 0.75rem;
+    }
+
+    /* Compact Cancel Button */
+    .processing-cancel {
+      margin: 12px 0 4px;
+    }
+
+    .cancel-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      padding: 7px 16px;
+      border-radius: 18px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      margin: 0 auto;
+      width: fit-content;
+      opacity: 0.9;
+    }
+
+    .cancel-btn:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+      opacity: 1;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .cancel-btn:active {
+      transform: scale(0.98) translateY(0);
+      box-shadow: 0 1px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    .cancel-btn i {
+      font-size: 0.7rem;
+    }
+
+    /* About Section */
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      overflow: visible;
+    }
+
+    .about-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .about-hero h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .about-hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+
+    .about-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .about-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.1);
+      border-color: var(--accent-color);
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--accent-color), #3b82f6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 1.3rem;
+      color: white;
+    }
+
+    .about-card h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .about-card p {
+      color: var(--text-secondary);
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .about-features {
+      margin-bottom: 50px;
+    }
+
+    .about-features h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-primary);
+      margin-bottom: 30px;
+    }
+
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-item i {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-top: 2px;
+    }
+
+    .feature-item h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .feature-item p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .about-cta {
+      text-align: center;
+      background: linear-gradient(135deg, var(--card-bg), rgba(37, 99, 235, 0.05));
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 40px 30px;
+      margin-bottom: 30px;
+    }
+
+    .about-cta h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .about-cta p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, var(--accent-color), #3b82f6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .quick-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      padding: 15px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-item {
+      text-align: center;
+      flex: 1;
+      max-width: 100px;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive adjustments for stats */
+    @media (max-width: 768px) {
+      .quick-stats {
+        gap: 20px;
+        padding: 10px;
+      }
+      
+      .stat-number {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .about-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      
+      .about-card {
+        padding: 24px 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .about-hero h2 {
+        font-size: 1.8rem;
+      }
+      
+      .about-hero p {
+        font-size: 1rem;
+      }
+      
+      .about-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      
+      .about-card {
+        padding: 20px;
+      }
+      
+      .features-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .about-cta {
+        padding: 30px 20px;
+      }
+      
+      .about-cta h3 {
+        font-size: 1.4rem;
+      }
+      
+      .container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card {
+        padding: 24px;
+        min-height: 300px;
+      }
+      
+      .drop_box {
+        padding: 32px 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .about-card {
+        padding: 20px;
+      }
+    }
+
+    /* Footer */
+    footer {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      padding: 24px 20px;
+      margin-top: 48px;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Video Modal Responsive Design */
+    @media (max-width: 768px) {
+      .video-modal-content {
+        padding: 12px;
+        max-width: 95vw;
+        max-height: 95vh;
+      }
+      
+      .video-modal-header {
+        padding: 0 0 8px 0;
+        margin-bottom: 8px;
+      }
+      
+      .video-modal-header h3 {
+        font-size: 14px;
+      }
+      
+      .video-container {
+        margin-bottom: 8px;
+      }
+      
+      .video-modal-actions {
+        gap: 6px;
+        padding: 0;
+      }
+      
+      .modal-btn {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .video-modal-content {
+        padding: 10px;
+        max-width: 98vw;
+        max-height: 98vh;
+      }
+      
+      .video-container {
+        margin-bottom: 8px;
+      }
+      
+      .video-modal-header {
+        padding: 0 0 6px 0;
+        margin-bottom: 6px;
+      }
+      
+      .video-modal-header h3 {
+        font-size: 13px;
+      }
+      
+      .close-modal {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+      }
+    }
+
+    /* Responsive Design */
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fas fa-shield-alt"></i>
+        SihatSahih
+      </div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="#" class="nav-link active" onclick="showSection('home')" data-en="Home" data-ms="Utama">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
+          </a>
+          <a href="#" class="nav-link" onclick="showSection('how-it-works')" data-en="How It Works" data-ms="Fungsi">
+            <i class="fas fa-cogs"></i>
+            <span class="nav-text">How It Works</span>
+          </a>
+          <a href="#" class="nav-link" onclick="showSection('about')" data-en="About" data-ms="Tentang">
+            <i class="fas fa-info-circle"></i>
+            <span class="nav-text">About</span>
+          </a>
+        </div>
+        <div class="controls">
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          <button class="lang-toggle" onclick="toggleLanguage()" id="langToggle">
+            EN | MS
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Home Section -->
+    <section id="home" class="section">
+      <div class="main-content">
+        <div class="container">
+          <div class="description" id="descriptionBox">
+            <h1 data-en="Health Information Fact-Checker" data-ms="Penyemak Fakta Maklumat Kesihatan">Health Information Fact-Checker</h1>
+            <p data-en="This advanced AI system analyzes TikTok videos using GPT to identify and fact-check health-related claims, helping you distinguish between true and false health information." data-ms="Sistem AI canggih ini menganalisis video TikTok menggunakan GPT untuk mengenalpasti dan menyemak fakta berkaitan kesihatan. Ini membantu anda membezakan antara maklumat benar dengan maklumat palsu.">This advanced AI system analyzes TikTok videos using GPT to identify and fact-check health-related claims, helping you distinguish between true and false health information.</p>
+            <p data-en="Upload your video to get started with comprehensive analysis including transcription, summarization, and evidence-based fact-checking." data-ms="Muat naik video anda untuk memulakan analisis komprehensif iaitu transkripsi, rumusan, dan pemeriksaan fakta yang berasaskan bukti.">Upload your video to get started with comprehensive analysis including transcription, summarization, and evidence-based fact-checking.</p>
+            
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-icon">
+                  <i class="fas fa-video"></i>
+                </div>
+                <div>
+                  <strong data-en="Video Analysis" data-ms="Analisis Video">Video Analysis</strong>
+                  <p data-en="AI-powered transcription" data-ms="Transkripsi berkuasa AI">AI-powered transcription</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">
+                  <i class="fas fa-search"></i>
+                </div>
+                <div>
+                  <strong data-en="Fact Checking" data-ms="Periksa Fakta">Fact Checking</strong>
+                  <p data-en="Evidence-based verification" data-ms="Pengesahan berdasarkan bukti">Evidence-based verification</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                  <strong data-en="Real-time Results" data-ms="Dapatkan Keputusan Secara Langsung">Real-time Results</strong>
+                  <p data-en="Instant analysis & reports" data-ms="Analisis & keputusan segera">Instant analysis & reports</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                  <strong data-en="Trusted Sources" data-ms="Sumber Yang Dipercayai">Trusted Sources</strong>
+                  <p data-en="Medical authority references" data-ms="Rujukan dari sumber pihak perubatan">Medical authority references</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="uploadCard">
+            <h3><i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i><span data-en="Upload TikTok Video" data-ms="Muat Naik Video TikTok">Upload TikTok Video</span></h3>
+            <div class="drop_box">
+              <i class="fas fa-file-video" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 10px;"></i>
+              <h4 data-en="Select File Here" data-ms="Pilih Fail Di Sini">Select File Here</h4>
+              <p data-en="Supported Format: .mp4 | Max size: 100MB" data-ms="Format Disokong: .mp4 | Saiz maksimum: 100MB">Supported Format: .mp4 | Max size: 100MB</p>
+              <button id="chooseFileBtn" aria-label="Choose a video file">
+                <i class="fas fa-folder-open" style="margin-right: 8px;"></i>
+                <span data-en="Choose File" data-ms="Pilih Fail">Choose File</span>
+              </button>
+              <input type="file" id="fileInput" accept=".mp4" style="display: none;" />
+              <p id="fileName" title="No file chosen" data-en="No file chosen" data-ms="Tiada fail dipilih">No file chosen</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="section" style="display: none; min-height: 320px;">
+      <div class="how-steps-compact">
+        <h2 style="text-align:center; font-size:1.7rem; font-weight:700; color:var(--text-primary); margin-bottom:10px;">
+          <i class="fas fa-play-circle" style="color:var(--accent-color);"></i>
+          <span data-en="How It Works" data-ms="Cara Kerja">How It Works</span>
+        </h2>
+        <p style="text-align:center; color:var(--text-secondary); font-size:1rem; margin-bottom:18px;">
+          <span data-en="Fact-check health videos in 4 simple steps" data-ms="Semak fakta video kesihatan dalam 4 langkah mudah">Fact-check health videos in 4 simple steps</span>
+        </p>
+        <div class="steps-horizontal" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px;">
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <div class="step-title" data-en="Upload" data-ms="Muat Naik">Upload</div>
+            <div class="step-desc" data-en="Select your TikTok video (.mp4)" data-ms="Pilih video TikTok anda (.mp4)">Select your TikTok video (.mp4)</div>
+          </div>
+          <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-cogs"></i></div>
+            <div class="step-title" data-en="Process" data-ms="Proses">Process</div>
+            <div class="step-desc" data-en="AI transcribes & checks claims" data-ms="AI transkrip & semak fakta">AI transcribes & checks claims</div>
+          </div>
+          <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="step-title" data-en="Results" data-ms="Keputusan">Results</div>
+            <div class="step-desc" data-en="See verdicts for each claim" data-ms="Lihat keputusan setiap fakta">See verdicts for each claim</div>
+          </div>
+          <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-search"></i></div>
+            <div class="step-title" data-en="Explore" data-ms="Jelajah">Explore</div>
+            <div class="step-desc" data-en="Read analysis & sources" data-ms="Baca analisis & periksa sumber">Read analysis & sources</div>
+          </div>
+        </div>
+        <div class="quick-stats" style="margin-top:10px;">
+          <div class="stat-item">
+            <div class="stat-number">4</div>
+            <div class="stat-label" data-en="Easy Steps" data-ms="Langkah Mudah">Easy Steps</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">&lt; 3</div>
+            <div class="stat-label" data-en="Minutes" data-ms="Minit">Minutes</div>
+          </div>
+        </div>
+      </div>
+      <style>
+        .how-steps-compact {
+          background: var(--card-bg);
+          border-radius: 18px;
+          box-shadow: 0 2px 12px rgba(37,99,235,0.06);
+          padding: 24px 10px 18px;
+          margin: 0 auto;
+          max-width: 1000px;
+        }
+        .steps-horizontal {
+          width: 100%;
+          overflow-x: auto;
+          scrollbar-width: thin;
+        }
+        .step-card {
+          background: var(--bg-secondary);
+          border: 1.5px solid var(--border-color);
+          border-radius: 12px;
+          min-width: 120px;
+          max-width: 160px;
+          flex: 1 1 120px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 16px 10px 12px;
+          box-shadow: 0 2px 8px rgba(37,99,235,0.03);
+          margin-bottom: 8px;
+        }
+        .step-icon {
+          font-size: 2.1rem;
+          color: var(--accent-color);
+          margin-bottom: 8px;
+        }
+        .step-title {
+          font-weight: 700;
+          font-size: 1.1rem;
+          margin-bottom: 4px;
+          color: var(--text-primary);
+        }
+        .step-desc {
+          font-size: 0.92rem;
+          color: var(--text-secondary);
+          text-align: center;
+        }
+        .step-arrow {
+          display: flex;
+          align-items: center;
+          font-size: 1.3rem;
+          color: var(--border-color);
+          margin: 0 2px;
+          flex: 0 0 18px;
+        }
+        @media (max-width: 900px) {
+          .steps-horizontal {flex-wrap:nowrap;overflow-x:auto;}
+          .step-card {min-width:120px;max-width:140px;}
+        }
+        @media (max-width: 600px) {
+          .how-steps-compact {padding: 12px 2px 10px;}
+          .step-card {padding:10px 4px 8px;min-width:110px;max-width:120px;}
+          .step-title {font-size:1rem;}
+          .step-desc {font-size:0.85rem;}
+        }
+      </style>
+    </section>
+    <!-- End How It Works Section -->
+    
+    <!-- About Section -->
+    <section id="about" class="section" style="display: none;">
+      <div class="about-container">
+        <div class="about-hero">
+          <h2 data-en="About SihatSahih" data-ms="Tentang SihatSahih">About SihatSahih</h2>
+          <p data-en="AI-powered fact-checking for health content" data-ms="Semakan fakta berkuasa AI untuk kandungan kesihatan">
+            AI-powered fact-checking for health content
+          </p>
+        </div>
+        
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="card-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 data-en="Our Mission" data-ms="Misi Kami">Our Mission</h3>
+            <p data-en="Combat health misinformation with AI-powered, evidence-based fact-checking." data-ms="Memerangi maklumat kesihatan palsu dengan semakan fakta berasaskan AI dan bukti.">
+              Combat health misinformation with AI-powered, evidence-based fact-checking.
+            </p>
+          </div>
+          
+          <div class="about-card">
+            <div class="card-icon">
+              <i class="fas fa-cogs"></i>
+            </div>
+            <h3 data-en="How It Works" data-ms="Cara Kerja">How It Works</h3>
+            <p data-en="Analyze videos, transcribe speech, identify claims, and verify with trusted sources." data-ms="Analisis video, transkrip ucapan, kenal pasti tuntutan, dan sahkan dengan sumber dipercayai.">
+              Analyze videos, transcribe speech, identify claims, and verify with trusted sources.
+            </p>
+          </div>
+          
+          <div class="about-card">
+            <div class="card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3 data-en="Who We Serve" data-ms="Siapa Kami Layani">Who We Serve</h3>
+            <p data-en="Healthcare professionals, educators, and users who verify health information." data-ms="Profesional kesihatan, pendidik, dan pengguna yang mengesahkan maklumat kesihatan.">
+              Healthcare professionals, educators, and users who verify health information.
+            </p>
+          </div>
+          
+          <div class="about-card">
+            <div class="card-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 data-en="Our Impact" data-ms="Impak Kami">Our Impact</h3>
+            <p data-en="95% accuracy in health content analysis with transparent, source-backed results." data-ms="95% ketepatan dalam analisis kandungan kesihatan dengan hasil telus bersumber.">
+              95% accuracy in health content analysis with transparent, source-backed results.
+            </p>
+          </div>
+        </div>
+        
+        <div class="about-features">
+          <h3 data-en="Key Features" data-ms="Ciri Utama">Key Features</h3>
+          <div class="features-list">
+            <div class="feature-item">
+              <i class="fas fa-robot"></i>
+              <div>
+                <h4 data-en="AI Analysis" data-ms="Analisis AI">AI Analysis</h4>
+                <p data-en="Advanced algorithms for accurate content analysis" data-ms="Algoritma canggih untuk analisis kandungan tepat">Advanced algorithms for accurate content analysis</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-database"></i>
+              <div>
+                <h4 data-en="Trusted Sources" data-ms="Sumber Dipercayai">Trusted Sources</h4>
+                <p data-en="WHO, CDC, and peer-reviewed medical journals" data-ms="WHO, CDC, dan jurnal perubatan disemak rakan sebaya">WHO, CDC, and peer-reviewed medical journals</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <h4 data-en="Fast Processing" data-ms="Pemprosesan Pantas">Fast Processing</h4>
+                <p data-en="Results in under 3 minutes" data-ms="Keputusan dalam masa kurang 3 minit">Results in under 3 minutes</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-lock"></i>
+              <div>
+                <h4 data-en="Privacy First" data-ms="Privasi Utama">Privacy First</h4>
+                <p data-en="Secure processing, no permanent storage" data-ms="Pemprosesan selamat, tiada penyimpanan kekal">Secure processing, no permanent storage</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="about-cta">
+          <h3 data-en="Ready to Fight Misinformation?" data-ms="Bersedia Melawan Maklumat Palsu?">Ready to Fight Misinformation?</h3>
+          <p data-en="Join us in creating a healthier digital world." data-ms="Sertai kami mewujudkan dunia digital lebih sihat.">Join us in creating a healthier digital world.</p>
+          <button class="cta-button" onclick="showSection('home')">
+            <i class="fas fa-play"></i>
+            <span data-en="Try It Now" data-ms="Cuba Sekarang">Try It Now</span>
+          </button>
+        </div>
+      </div>
+      
+      <style>
+        .about-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+          overflow: visible;
+        }
+        
+        .about-hero {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+        
+        .about-hero h2 {
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 12px;
+        }
+        
+        .about-hero p {
+          font-size: 1.1rem;
+          color: var(--text-secondary);
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        
+        .about-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
+          margin-bottom: 50px;
+        }
+        
+        .about-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          padding: 24px;
+          text-align: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .about-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.1);
+          border-color: var(--accent-color);
+        }
+        
+        .card-icon {
+          width: 50px;
+          height: 50px;
+          background: linear-gradient(135deg, var(--accent-color), #3b82f6);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px;
+          font-size: 1.3rem;
+          color: white;
+        }
+        
+        .about-card h3 {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 12px;
+        }
+        
+        .about-card p {
+          color: var(--text-secondary);
+          line-height: 1.5;
+          font-size: 0.9rem;
+        }
+        
+        .about-features {
+          margin-bottom: 50px;
+        }
+        
+        .about-features h3 {
+          font-size: 1.8rem;
+          font-weight: 700;
+          text-align: center;
+          color: var(--text-primary);
+          margin-bottom: 30px;
+        }
+        
+        .features-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+        
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 16px;
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .feature-item i {
+          font-size: 1.3rem;
+          color: var(--accent-color);
+          margin-top: 2px;
+        }
+        
+        .feature-item h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 4px;
+        }
+        
+        .feature-item p {
+          color: var(--text-secondary);
+          font-size: 0.85rem;
+          line-height: 1.4;
+        }
+        
+        .about-cta {
+          text-align: center;
+          background: linear-gradient(135deg, var(--card-bg), rgba(37, 99, 235, 0.05));
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          padding: 40px 30px;
+          margin-bottom: 30px;
+        }
+        
+        .about-cta h3 {
+          font-size: 1.6rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 12px;
+        }
+        
+        .about-cta p {
+          font-size: 1rem;
+          color: var(--text-secondary);
+          margin-bottom: 24px;
+        }
+        
+        .cta-button {
+          background: linear-gradient(135deg, var(--accent-color), #3b82f6);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .cta-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .quick-stats {
+          display: flex;
+          justify-content: center;
+          gap: 30px;
+          margin-top: 20px;
+          padding: 15px;
+          background: var(--card-bg);
+          border-radius: 10px;
+          border: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+          text-align: center;
+          flex: 1;
+          max-width: 100px;
+        }
+
+        .stat-number {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--accent-color);
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        /* Responsive adjustments for stats */
+        @media (max-width: 768px) {
+          .quick-stats {
+            gap: 20px;
+            padding: 10px;
+          }
+          
+          .stat-number {
+            font-size: 1.2rem;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .about-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+          }
+          
+          .about-card {
+            padding: 24px 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .about-hero h2 {
+            font-size: 1.8rem;
+          }
+          
+          .about-hero p {
+            font-size: 1rem;
+          }
+          
+          .about-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+          }
+          
+          .about-card {
+            padding: 20px;
+          }
+          
+          .features-list {
+            grid-template-columns: 1fr;
+          }
+          
+          .about-cta {
+            padding: 30px 20px;
+          }
+          
+          .about-cta h3 {
+            font-size: 1.4rem;
+          }
+          
+          .container {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          
+          .features-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .card {
+            padding: 24px;
+            min-height: 300px;
+          }
+          
+          .drop_box {
+            padding: 32px 16px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .about-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          
+          .about-card {
+            padding: 20px;
+          }
+        }
+
+        /* Footer */
+        footer {
+          background: var(--card-bg);
+          border-top: 1px solid var(--border-color);
+          text-align: center;
+          padding: 24px 20px;
+          margin-top: 48px;
+          color: var(--text-secondary);
+          font-size: 0.875rem;
+        }
+
+    /* Video Modal Responsive Design */
+    @media (max-width: 768px) {
+      .video-modal-content {
+        max-width: 95vw;
+        max-height: 95vh;
+      }
+      
+      .video-modal-header {
+        padding: 12px;
+      }
+      
+      .video-modal-actions {
+        gap: 4px;
+        padding: 0;
+      }
+      
+      .modal-btn {
+        padding: 7px 10px;
+        font-size: 0.7rem;
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .video-modal-content {
+        max-width: 98vw;
+        max-height: 98vh;
+      }
+      
+      .close-modal {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+      }
+    }
+
+        /* Additional responsive handling for video aspect ratios */
+        @media (max-width: 480px) {
+          /* Portrait videos on mobile */
+          @media (max-aspect-ratio: 9/16) {
+            .video-modal-content {
+              max-width: 95vw !important;
+            }
+          }
+          
+          /* Landscape videos on mobile */
+          @media (min-aspect-ratio: 16/9) {
+            .video-modal-content {
+              max-width: 98vw !important;
+            }
+            
+            .video-container {
+              max-height: 50vh;
+            }
+          }
+        }
+
+        /* Responsive Design */
+      </style>
+    </section>
+    <!-- End About Section -->
+  </main>
+
+  <footer>
+    <p data-en="&copy; 2025 SihatGPT. All rights reserved. | Empowering informed health decisions through AI" data-ms="&copy; 2025 SihatGPT. Hak cipta terpelihara. | Memperkasakan keputusan kesihatan termaklum melalui AI">&copy; 2025 SihatGPT. All rights reserved. | Empowering informed health decisions through AI</p>
+  </footer>
+
+  <!-- Video Preview Modal -->
+  <div id="videoPreviewModal">
+    <div class="video-modal-overlay" onclick="closeVideoPreview()"></div>
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <h3 data-en="Video Preview" data-ms="Pratonton Video">Video Preview</h3>
+        <button class="close-modal" onclick="closeVideoPreview()" aria-label="Close video preview">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="video-container">
+        <video id="videoPreview" controls>
+          <source id="videoSource" src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="video-modal-actions">
+        <button class="modal-btn btn-primary" onclick="startAnalysis('english')">
+          <i class="fas fa-play"></i>
+          <span data-en="Analyze in English" data-ms="Analisis dalam Bahasa Inggeris">Analyze in English</span>
+        </button>
+        <button class="modal-btn btn-primary" onclick="startAnalysis('malay')">
+          <i class="fas fa-play"></i>
+          <span data-en="Analyze in Malay" data-ms="Analisis dalam Bahasa Melayu">Analyze in Malay</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing Modal -->
+  <div id="processingModal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content" id="modalContent">
+      <!-- Classic Circle Spinner -->
+      <div class="main-spinner"></div>
+      
+      <!-- Status Text -->
+      <div class="processing-status" id="processingStatus" data-en="Initializing..." data-ms="Memulakan...">Initializing...</div>
+      
+      <!-- Progress Bar and Percentage -->
+      <div id="progressContainer">
+        <div id="progressBar" style="width: 0;"></div>
+      </div>
+      <div id="progressPercent">0%</div>
+      
+      <!-- Timer -->
+      <div class="processing-timer">
+        <i class="fas fa-clock"></i>
+        <span id="processingTime">00:00</span>
+      </div>
+      
+      <!-- Cancel Button -->
+      <div class="processing-cancel">
+        <button class="cancel-btn" id="cancelBtn" onclick="cancelProcessing()">
+          <span data-en="Cancel Analysis" data-ms="Batalkan Analisis">Cancel Analysis</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      // Update theme toggle icon
+      const themeIcon = document.querySelector('.theme-toggle i');
+      themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    // Set initial theme icon on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const themeIcon = document.querySelector('.theme-toggle i');
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      themeIcon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    });
+    }
+
+    // Language toggle
+    function toggleLanguage() {
+      const currentLang = document.documentElement.getAttribute('lang');
+      const newLang = currentLang === 'ms' ? 'en' : 'ms';
+      document.documentElement.setAttribute('lang', newLang);
+      localStorage.setItem('lang', newLang);
+      updateContentLanguage();
+    }
+
+    function updateContentLanguage() {
+      const lang = document.documentElement.getAttribute('lang');
+      const translatableElements = document.querySelectorAll('[data-en], [data-ms]');
+      translatableElements.forEach(el => {
+        if (el.classList.contains('nav-link')) {
+          // For nav links, only update the text span, preserve the icon
+          const textSpan = el.querySelector('.nav-text');
+          if (textSpan) {
+            textSpan.textContent = el.getAttribute(`data-${lang}`);
+          }
+        } else {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        }
+      });
+    }
+
+    // Section navigation
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+      });
+      document.querySelector(`.nav-link[onclick="showSection('${sectionId}')"]`).classList.add('active');
+
+      // Initialize "How It Works" section
+      if (sectionId === 'how-it-works') {
+        currentStep = 1;
+        showStep(1);
+      }
+    }
+
+    // File upload and demo
+    document.getElementById('chooseFileBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const fileName = file.name;
+        document.getElementById('fileName').textContent = fileName;
+        
+        // Create a URL for the video file and open preview modal
+        const fileUrl = URL.createObjectURL(file);
+        openVideoPreview(fileUrl);
+      } else {
+        document.getElementById('fileName').textContent = 'No file chosen';
+      }
+    });
+
+    // Video preview
+    function openVideoPreview(fileUrl) {
+      const videoPreview = document.getElementById('videoPreview');
+      const videoSource = document.getElementById('videoSource');
+      const videoModal = document.getElementById('videoPreviewModal');
+      const videoModalContent = document.querySelector('.video-modal-content');
+      const videoContainer = document.querySelector('.video-container');
+      
+      videoSource.src = fileUrl;
+      videoPreview.load();
+      
+      // Add error handling for video loading
+      videoPreview.addEventListener('loadeddata', function() {
+        // Get video dimensions
+        const videoWidth = videoPreview.videoWidth;
+        const videoHeight = videoPreview.videoHeight;
+        const aspectRatio = videoWidth / videoHeight;
+        
+        // Calculate exact video dimensions for minimalist design
+        const maxViewportWidth = window.innerWidth * 0.9;
+        const maxViewportHeight = window.innerHeight * 0.9;
+        
+        // Account for modal padding and header/actions
+        const modalPadding = 32; // 16px padding on each side
+        const headerHeight = 40; // approximate header height
+        const actionsHeight = 60; // approximate actions height
+        const totalExtraHeight = headerHeight + actionsHeight + modalPadding;
+        const totalExtraWidth = modalPadding;
+        
+        // Scale video to fit within viewport while maintaining aspect ratio
+        let finalVideoWidth = videoWidth;
+        let finalVideoHeight = videoHeight;
+        
+        // Scale down if video is too large for viewport considering extra space
+        const maxVideoWidth = maxViewportWidth - totalExtraWidth;
+        const maxVideoHeight = maxViewportHeight - totalExtraHeight;
+        
+        if (finalVideoWidth > maxVideoWidth || finalVideoHeight > maxVideoHeight) {
+          const widthScale = maxVideoWidth / finalVideoWidth;
+          const heightScale = maxVideoHeight / finalVideoHeight;
+          const scale = Math.min(widthScale, heightScale);
+          
+          finalVideoWidth = finalVideoWidth * scale;
+          finalVideoHeight = finalVideoHeight * scale;
+        }
+        
+        // Modal includes video + padding + header + actions
+        const modalWidth = finalVideoWidth + totalExtraWidth;
+        const modalHeight = finalVideoHeight + totalExtraHeight;
+        
+        // Scale up the modal by 2%
+        const scaleFactor = 1.02;
+        const scaledModalWidth = modalWidth * scaleFactor;
+        const scaledModalHeight = modalHeight * scaleFactor;
+        const scaledVideoWidth = finalVideoWidth * scaleFactor;
+        const scaledVideoHeight = finalVideoHeight * scaleFactor;
+        
+        // Apply calculated dimensions
+        videoModalContent.style.width = scaledModalWidth + 'px';
+        videoModalContent.style.height = scaledModalHeight + 'px';
+        videoModalContent.style.maxWidth = 'none';
+        videoModalContent.style.maxHeight = 'none';
+        
+        videoContainer.style.width = scaledVideoWidth + 'px';
+        videoContainer.style.height = scaledVideoHeight + 'px';
+        
+        // Show modal
+        videoModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      });
+      
+      videoPreview.addEventListener('error', function(e) {
+        console.error('Error loading video:', e);
+        alert('Error loading video. Please try with a different file.');
+      });
+    }
+
+    function closeVideoPreview() {
+      document.getElementById('videoPreviewModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      const videoPreview = document.getElementById('videoPreview');
+      const videoSource = document.getElementById('videoSource');
+      const videoModalContent = document.querySelector('.video-modal-content');
+      const videoContainer = document.querySelector('.video-container');
+      
+      // Pause the video
+      videoPreview.pause();
+      
+      // Reset modal and container styles
+      videoModalContent.style.width = '';
+      videoModalContent.style.height = '';
+      videoModalContent.style.maxWidth = '';
+      videoModalContent.style.maxHeight = '';
+      videoContainer.style.width = '';
+      videoContainer.style.height = '';
+      
+      // Clear the source
+      if (videoSource.src) {
+        URL.revokeObjectURL(videoSource.src);
+      }
+      videoSource.src = '';
+      videoPreview.load();
+      
+      // Remove event listeners to prevent memory leaks
+      videoPreview.removeEventListener('loadeddata', function() {});
+      videoPreview.removeEventListener('error', function() {});
+    }
+
+    // Processing modal
+    let processingStartTime = null;
+    let processingTimer = null;
+    let currentFilename = null;  // Track current processing file
+
+    function openProcessingModal() {
+      document.getElementById('processingModal').style.display = 'flex';
+      processingStartTime = Date.now();
+      startProcessingTimer();
+      updateProcessingStatus(0, 'Uploading to backend...');
+    }
+
+    function closeProcessingModal() {
+      document.getElementById('processingModal').style.display = 'none';
+      if (processingTimer) {
+        clearInterval(processingTimer);
+        processingTimer = null;
+      }
+      currentFilename = null;  // Reset filename
+    }
+
+    function startProcessingTimer() {
+      processingTimer = setInterval(() => {
+        if (processingStartTime) {
+          const elapsed = Date.now() - processingStartTime;
+          const minutes = Math.floor(elapsed / 60000);
+          const seconds = Math.floor((elapsed % 60000) / 1000);
+          document.getElementById('processingTime').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    // Start analysis function
+    function startAnalysis(language = 'english') {
+      closeVideoPreview();
+      openProcessingModal();
+      
+      const formData = new FormData();
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files[0]) {
+        formData.append('video', fileInput.files[0]);
+        formData.append('language', language); // Add language preference
+        
+        updateProcessingStatus(5, 'Uploading video file...');
+        
+        // Send file to backend
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'uploaded') {
+            currentFilename = data.filename;
+            updateProcessingStatus(10, 'Video uploaded successfully!');
+            
+            // Poll for processing status
+            pollProcessingStatus(data.filename);
+          } else {
+            closeProcessingModal();
+            alert('Upload failed: ' + (data.message || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          closeProcessingModal();
+          console.error('Upload error:', error);
+          alert('Upload failed. Please try again.');
+        });
+      }
+    }
+
+    // Cancel processing function
+    function cancelProcessing() {
+      if (!currentFilename) {
+        closeProcessingModal();
+        return;
+      }
+
+      fetch('/cancel_processing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filename: currentFilename })
+      })
+      .then(response => response.json())
+      .then(data => {
+        setTimeout(() => {
+          closeProcessingModal();
+          currentFilename = null;
+        }, 1000);
+      })
+      .catch(error => {
+        console.error('Cancel error:', error);
+        setTimeout(() => {
+          closeProcessingModal();
+          currentFilename = null;
+        }, 1000);
+      });
+    }
+
+    function pollProcessingStatus(filename) {
+      fetch(`/processing_status?filename=${encodeURIComponent(filename)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'done') {
+            // Use the real processing time from the backend
+            let processingTime = data.processing_time || 'a few seconds';
+            showAnalysisDoneToast(processingTime, filename);
+          } else if (data.status === 'error') {
+            closeProcessingModal();
+            alert('Processing failed: ' + data.message);
+          } else if (data.status === 'cancelled') {
+            closeProcessingModal();
+          } else {
+            // Still processing, update progress and poll again
+            updateProgressWithDetailedStatus(data);
+            setTimeout(() => pollProcessingStatus(filename), 1000);
+          }
+        })
+        .catch(error => {
+          closeProcessingModal();
+          console.error('Error:', error);
+          alert('Processing status check failed.');
+        });
+    }
+
+    // Show toast in processing modal after analysis is done
+    function showAnalysisDoneToast(processingTime, filename) {
+      const modal = document.getElementById('processingModal');
+      const modalContent = document.getElementById('modalContent');
+      const lang = document.documentElement.getAttribute('lang');
+      const message = lang === 'ms' ? 
+        `Analisis selesai dalam ${processingTime}` : 
+        `Analysis done in ${processingTime}`;
+      // Remove spinner and progress bar, show toast
+      modalContent.innerHTML = `
+        <div class="analysis-toast" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;">
+          <i class="fas fa-check-circle" style="font-size:2.5rem;color:var(--success-color);margin-bottom:16px;"></i>
+          <div style="font-size:1.2rem;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${message}</div>
+        </div>
+      `;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        closeProcessingModal();
+        window.location.href = `/output?filename=${encodeURIComponent(filename)}`;
+      }, 1800);
+    }
+
+    function updateProgressWithDetailedStatus(data) {
+      const progress = data.progress || 0;
+      const stage = data.stage;
+      const message = data.message;
+      
+      // Update progress bar and status
+      updateProcessingStatus(progress, getStatusMessage(progress));
+    }
+
+    function updateProgress(progress) {
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      
+      if (progressBar && progressPercent) {
+        progressBar.style.width = progress + '%';
+        progressPercent.textContent = Math.round(progress) + '%';
+        
+        // Update status message based on progress
+        let statusMessage = getStatusMessage(progress);
+        updateProcessingStatus(progress, statusMessage);
+      }
+    }
+
+    function updateProcessingStatus(progress, message) {
+      const statusElement = document.getElementById('processingStatus');
+      if (statusElement && message) {
+        statusElement.textContent = message;
+      }
+      
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      
+      if (progressBar && progressPercent && progress !== undefined) {
+        progressBar.style.width = progress + '%';
+        progressPercent.textContent = Math.round(progress) + '%';
+      }
+    }
+
+    function getStatusMessage(progress) {
+      const lang = document.documentElement.getAttribute('lang');
+      const messages = {
+        en: {
+          95: 'Finalizing results...',
+          85: 'Verifying information from sources...',
+          70: 'Cross-checking with reliable sources...',
+          60: 'Fact-checking health claims...',
+          55: 'Extracting health-related claims...',
+          50: 'Generating summary...',
+          40: 'Analyzing transcript with GPT...',
+          30: 'Processing transcript...',
+          20: 'Converting audio to text...',
+          10: 'Extracting audio from video...',
+          5: 'Processing video file...',
+          0: 'Initializing...'
+        },
+        ms: {
+          95: 'Menyelesaikan keputusan...',
+          85: 'Mengesahkan maklumat dari sumber...',
+          70: 'Menyemak dengan sumber yang dipercayai...',
+          60: 'Menyemak fakta kesihatan...',
+          55: 'Mengekstrak fakta berkaitan kesihatan...',
+          50: 'Menjana rumusan...',
+          40: 'Menganalisis transkrip dengan GPT...',
+          30: 'Memproses transkrip...',
+          20: 'Menukar audio kepada teks...',
+          10: 'Mengekstrak audio dari video...',
+          5: 'Memproses fail video...',
+          0: 'Memulakan...'
+        }
+      };
+      
+      const messageSet = messages[lang === 'ms' ? 'ms' : 'en'];
+      if (progress >= 95) return messageSet[95];
+      if (progress >= 85) return messageSet[85];
+      if (progress >= 70) return messageSet[70];
+      if (progress >= 60) return messageSet[60];
+      if (progress >= 55) return messageSet[55];
+      if (progress >= 50) return messageSet[50];
+      if (progress >= 40) return messageSet[40];
+      if (progress >= 30) return messageSet[30];
+      if (progress >= 20) return messageSet[20];
+      if (progress >= 10) return messageSet[10];
+      if (progress >= 5) return messageSet[5];
+      return messageSet[0];
+    }
+
+    // How It Works section functions
+    let currentStep = 1;
+    let tutorialAutoPlay = false;
+
+    function showStep(stepNumber) {
+      currentStep = stepNumber;
+      // For the compact version, this just updates the current step
+      // The design doesn't require interactive step navigation
+    }
+
+    function nextStep() {
+      if (currentStep < 4) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    // Keyboard event listener for modal
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const videoModal = document.getElementById('videoPreviewModal');
+        const processingModal = document.getElementById('processingModal');
+        
+        if (videoModal.style.display === 'flex') {
+          closeVideoPreview();
+        } else if (processingModal.style.display === 'flex') {
+          closeProcessingModal();
+        }
+      }
+    });
+
+    // Handle window resize for video modal
+    window.addEventListener('resize', function() {
+      const videoModal = document.getElementById('videoPreviewModal');
+      const videoPreview = document.getElementById('videoPreview');
+      
+      if (videoModal.style.display === 'flex' && videoPreview.videoWidth && videoPreview.videoHeight) {
+        // Recalculate modal size on window resize
+        const videoModalContent = document.querySelector('.video-modal-content');
+        const videoContainer = document.querySelector('.video-container');
+        const videoWidth = videoPreview.videoWidth;
+        const videoHeight = videoPreview.videoHeight;
+        
+        // Calculate exact video dimensions to match new modal structure
+        const maxViewportWidth = window.innerWidth * 0.9;
+        const maxViewportHeight = window.innerHeight * 0.9;
+        
+        // Account for modal padding and header/actions
+        const modalPadding = 32; // 16px padding on each side
+        const headerHeight = 40; // approximate header height
+        const actionsHeight = 60; // approximate actions height
+        const totalExtraHeight = headerHeight + actionsHeight + modalPadding;
+        const totalExtraWidth = modalPadding;
+        
+        let finalVideoWidth = videoWidth;
+        let finalVideoHeight = videoHeight;
+        
+        // Scale down if video is too large for viewport considering extra space
+        const maxVideoWidth = maxViewportWidth - totalExtraWidth;
+        const maxVideoHeight = maxViewportHeight - totalExtraHeight;
+        
+        if (finalVideoWidth > maxVideoWidth || finalVideoHeight > maxVideoHeight) {
+          const widthScale = maxVideoWidth / finalVideoWidth;
+          const heightScale = maxVideoHeight / finalVideoHeight;
+          const scale = Math.min(widthScale, heightScale);
+          
+          finalVideoWidth = finalVideoWidth * scale;
+          finalVideoHeight = finalVideoHeight * scale;
+        }
+        
+        // Modal includes video + padding + header + actions
+        const modalWidth = finalVideoWidth + totalExtraWidth;
+        const modalHeight = finalVideoHeight + totalExtraHeight;
+        
+        // Scale up the modal by 2%
+        const scaleFactor = 1.02;
+        const scaledModalWidth = modalWidth * scaleFactor;
+        const scaledModalHeight = modalHeight * scaleFactor;
+        const scaledVideoWidth = finalVideoWidth * scaleFactor;
+        const scaledVideoHeight = finalVideoHeight * scaleFactor;
+        
+        // Apply calculated dimensions
+        videoModalContent.style.width = scaledModalWidth + 'px';
+        videoModalContent.style.height = scaledModalHeight + 'px';
+        videoContainer.style.width = scaledVideoWidth + 'px';
+        videoContainer.style.height = scaledVideoHeight + 'px';
+      }
+    });
+
+    // Initialize theme and language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load saved theme
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Load saved language
+      const savedLang = localStorage.getItem('lang') || 'en';
+      document.documentElement.setAttribute('lang', savedLang);
+      updateContentLanguage();
+    });
+
+    /* Responsive Design */
+  </script>
+</body>
+</html>
