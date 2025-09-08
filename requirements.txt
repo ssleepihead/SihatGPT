@@ -3,6 +3,9 @@ gunicorn
 openai
 requests
 python-dotenv
+imageio-ffmpeg>=0.4.10
+
+
 
 
 
